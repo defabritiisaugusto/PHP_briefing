@@ -71,6 +71,11 @@ class Game extends BaseModel {
         return $this->belongsTo(Round::class, 'id_round');
     }
 
+    protected function team()
+    {
+        return $this->belongsTo(Team::class, 'team1_id');
+    }
+
     // indica che molte istanze di un'entità A sono associate a una singola istanza di un'entità B, mentre ogni istanza di B può essere legata a una o più di A
 
     

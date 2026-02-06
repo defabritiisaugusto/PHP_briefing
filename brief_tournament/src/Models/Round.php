@@ -49,7 +49,7 @@ class Round extends BaseModel {
      */
     protected function tournament()
     {
-        return $this->belongsTo(Tournament::class, 'id_tournament');
+        return $this->hasOne(Tournament::class, 'id_tournament');
     }
 
    

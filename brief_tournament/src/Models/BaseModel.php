@@ -131,7 +131,7 @@ abstract class BaseModel
                 }
                 return null;
             } else {
-                $result = DB::select("SELECT * FROM " . static::getTableName() . " WHERE id = :id", ['id' => $id]);
+                $result = DB::select("SELECT * FROM " . static::getTableName() . " WHERE " . static::quoteIdentifier('id') . " = :id", ['id' => $id]);
                 $row = $result[0] ?? null;
             }
         }
@@ -242,13 +242,13 @@ abstract class BaseModel
                 }, $value);
 
                 $placeholders = implode(',', array_fill(0, count($convertedValues), '?'));
-                $sql = "SELECT * FROM " . static::getTableName() . " WHERE {$column} {$operator} ({$placeholders})";
+                $sql = "SELECT * FROM " . static::getTableName() . " WHERE " . static::quoteIdentifier($column) . " {$operator} ({$placeholders})";
                 $rows = DB::select($sql, array_values($convertedValues));
             } else {
                 // Query normale con placeholder nominale
                 // Convertiamo i boolean in interi per evitare problemi con PDO che li converte in stringhe vuote
                 $convertedValue = is_bool($value) ? ($value ? 1 : 0) : $value;
-                $sql = "SELECT * FROM " . static::getTableName() . " WHERE {$column} {$operator} :value";
+                $sql = "SELECT * FROM " . static::getTableName() . " WHERE " . static::quoteIdentifier($column) . " {$operator} :value";
                 $rows = DB::select($sql, ['value' => $convertedValue]);
             }
 
@@ -301,6 +301,20 @@ abstract class BaseModel
     }
 
     /**
+     * Quota un identificatore di colonna per la sicurezza con database diversi
+     * PostgreSQL: usa doppi apici (")
+     * MySQL: usa backtick (`)
+     * 
+     * @param string $identifier Nome della colonna
+     * @return string Identificatore quotato
+     */
+    protected static function quoteIdentifier(string $identifier): string
+    {
+        // Usa doppi apici per PostgreSQL (funziona anche in MySQL)
+        return '"' . str_replace('"', '""', $identifier) . '"';
+    }
+
+    /**
      * Salva il record nel database
      */
     public function save(): void
@@ -349,19 +363,22 @@ abstract class BaseModel
             // [':name', ':email', ...]
             $placeholders = array_map(fn($col) => ":{$col}", $columns);
 
+            // Quota i nomi delle colonne per evitare conflitti con parole riservate (es: order, group, etc)
+            $quotedColumns = array_map(fn($col) => static::quoteIdentifier($col), $columns);
+
             if ($isNew) {
-                $this->id = DB::insert(sprintf("INSERT INTO %s (%s) VALUES (%s)", static::getTableName(), implode(', ', $columns), implode(', ', $placeholders)), $bindings);
+                $this->id = DB::insert(sprintf("INSERT INTO %s (%s) VALUES (%s)", static::getTableName(), implode(', ', $quotedColumns), implode(', ', $placeholders)), $bindings);
                 // la query INSERT è tipo:
-                // INSERT INTO users (name, email) VALUES (:name, :email)
+                // INSERT INTO users ("name", "email") VALUES (:name, :email)
             } else {
                 // mappiamo le colonne con i valori per la query nel formato e 
-                // ['name = :name', 'email = :email', ...]
-                $columnWithValues = array_map(fn($col) => "{$col} = :{$col}", $columns);
+                // ['"name" = :name', '"email" = :email', ...]
+                $columnWithValues = array_map(fn($col) => static::quoteIdentifier($col) . " = :{$col}", $columns);
                 // la query UPDATE è tipo:
-                // UPDATE users SET name = :name, email = :email WHERE id = :id
+                // UPDATE users SET "name" = :name, "email" = :email WHERE "id" = :id
                 // Aggiungiamo id ai bindings perché è necessario per la clausola WHERE
                 $bindings['id'] = $this->id;
-                DB::update(sprintf("UPDATE %s SET %s WHERE id = :id", static::getTableName(), implode(', ', $columnWithValues)), $bindings);
+                DB::update(sprintf("UPDATE %s SET %s WHERE %s = :id", static::getTableName(), implode(', ', $columnWithValues), static::quoteIdentifier('id')), $bindings);
             }
         }
     }
@@ -374,7 +391,7 @@ abstract class BaseModel
             $newCollection = array_filter($collection, fn($item) => $item->id !== $this->id);
             $result = JSONDB::write(static::$collection, $newCollection);
         } else {
-            $result = DB::delete("DELETE FROM " . static::getTableName() . " WHERE id = :id", ['id' => $this->id]);
+            $result = DB::delete("DELETE FROM " . static::getTableName() . " WHERE " . static::quoteIdentifier('id') . " = :id", ['id' => $this->id]);
         }
         if ($result === 0) {
             throw new \Exception("Errore durante l'eliminazione dell'utente");

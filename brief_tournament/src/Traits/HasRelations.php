@@ -15,6 +15,18 @@ use App\Database\DB;
  */
 trait HasRelations
 {
+    /**
+     * Helper statico per quotare un identificatore
+     * 
+     * @param string $identifier Nome della colonna
+     * @return string Identificatore quotato
+     */
+    protected static function quoteIdentifierStatic(string $identifier): string
+    {
+        // Usa doppi apici per PostgreSQL (funziona anche in MySQL)
+        return '"' . str_replace('"', '""', $identifier) . '"';
+    }
+
     // ============================================================================
     // RELAZIONI BASE (belongsTo, hasMany, hasOne)
     // ============================================================================
@@ -61,8 +73,10 @@ trait HasRelations
             // Per database, usa query diretta con WHERE invece di JOIN
             // (per hasMany non serve JOIN, basta filtrare per foreign key)
             $tableName = $this->getRelatedTableName($related);
+            // Quota il nome della colonna per evitare conflitti con parole riservate
+            $quotedForeignKey = static::quoteIdentifierStatic($foreignKey);
             $rows = DB::select(
-                "SELECT * FROM {$tableName} WHERE {$foreignKey} = :localValue",
+                "SELECT * FROM {$tableName} WHERE {$quotedForeignKey} = :localValue",
                 ['localValue' => $localValue]
             );
 
@@ -112,8 +126,10 @@ trait HasRelations
         } else {
             // Per database, usa query diretta con WHERE invece di leggere tutta la tabella
             $tableName = $this->getRelatedTableName($related);
+            // Quota il nome della colonna per evitare conflitti con parole riservate
+            $quotedOwnerKey = static::quoteIdentifierStatic($ownerKey);
             $rows = DB::select(
-                "SELECT * FROM {$tableName} WHERE {$ownerKey} = :foreignValue",
+                "SELECT * FROM {$tableName} WHERE {$quotedOwnerKey} = :foreignValue",
                 ['foreignValue' => $foreignValue]
             );
 
@@ -160,8 +176,10 @@ trait HasRelations
         } else {
             // Per database, usa query diretta con WHERE e LIMIT 1
             $tableName = $this->getRelatedTableName($related);
+            // Quota il nome della colonna per evitare conflitti con parole riservate
+            $quotedForeignKey = static::quoteIdentifierStatic($foreignKey);
             $rows = DB::select(
-                "SELECT * FROM {$tableName} WHERE {$foreignKey} = :localValue LIMIT 1",
+                "SELECT * FROM {$tableName} WHERE {$quotedForeignKey} = :localValue LIMIT 1",
                 ['localValue' => $localValue]
             );
 

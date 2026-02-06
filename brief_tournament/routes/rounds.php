@@ -10,47 +10,29 @@ use Pecee\SimpleRouter\SimpleRouter as Router;
  */
 Router::get('/rounds', function () {
     try {
-        $rounds = Round::all();
+        $request = new Request();
+        $id_tournament = $request->getParam('id_tournament');
+
+        if ($id_tournament !== null) {
+            $tournament = Round::find( $id_tournament);
+            if ($tournament === null) {
+                Response::error("Torneo non trovato", Response::HTTP_NOT_FOUND)->send();
+               
+            }
+
+            $rounds = Round::where('id_tournament', '=', $id_tournament);
+        } else {
+            $rounds = Round::all();
+        }
+
+
         Response::success($rounds)->send();
     } catch (\Exception $e) {
         Response::error('Errore nel recupero della lista round: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR)->send();
     }
 });
 
-/**
- * GET /api/rounds/{id} - Dettagli di un round
- */
-Router::get('/rounds/{id}', function ($id) {
-    try {
-        $round = Round::find($id);
 
-        if($round === null) {
-            Response::error('Round non trovato', Response::HTTP_NOT_FOUND)->send();
-            return;
-        }
-
-        Response::success($round)->send();
-    } catch (\Exception $e) {
-        Response::error('Errore nel recupero del round: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR)->send();
-    }
-});
-
-/**
- * GET /api/rounds/tournament/{id_tournament} - Round di un torneo
- */
-Router::get('/rounds/tournament/{id_tournament}', function ($id_tournament) {
-    try {
-        $rounds = Round::find($id_tournament);
-
-         if (empty($rounds)) {
-            Response::error("Nessun round trovato per questo torneo", Response::HTTP_NOT_FOUND)->send();
-            return;
-        }
-        Response::success($rounds)->send();
-    } catch (\Exception $e) {
-        Response::error('Errore nel recupero dei round del torneo: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR)->send();
-    }
-});
 
 /**
  * POST /api/rounds - Crea nuovo round
@@ -59,16 +41,7 @@ Router::post('/rounds', function () {
     try {
         $request = new Request();
         $data = $request->json();
-
         // Validazione
-        $requiredFields = ['id_tournament', 'name', 'status'];
-        $missingFields = array_filter($requiredFields, fn($field) => !isset($data[$field]) || $data[$field] === '');
-        
-        if (!empty($missingFields)) {
-            Response::error('Errore di validazione', Response::HTTP_BAD_REQUEST, array_map(fn($field) => "Il campo {$field} è obbligatorio", $missingFields))->send();
-            return;
-        }
-
         $errors = Round::validate($data);
         if (!empty($errors)) {
             Response::error('Errore di validazione', Response::HTTP_BAD_REQUEST, $errors)->send();
@@ -97,7 +70,7 @@ Router::match(['put', 'patch'], '/rounds/{id}', function($id) {
             return;
         }
 
-        $errors = Round::validate(array_merge($data, ['id_round' => $id]));
+        $errors = Round::validate(array_merge($round->toArray(), $data));
         if (!empty($errors)) {
             Response::error('Errore di validazione', Response::HTTP_BAD_REQUEST, $errors)->send();
             return;

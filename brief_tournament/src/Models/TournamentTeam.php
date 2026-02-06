@@ -70,6 +70,19 @@ class TournamentTeam extends BaseModel {
         return $this->belongsTo(Team::class, 'id_team');
     }
 
+     public static function findByTournamentAndTeam(int $id_tournament, int $id_team): ?static
+    {
+        $result = DB::select(
+            "SELECT * FROM " . static::getTableName() . " WHERE id_team = :id_team AND id_tournament = :id_tournament",
+            [
+                'id_team' => $id_team,
+                'id_tournament' => $id_tournament
+                
+            ]
+        );
+        return !empty($result) ? new static($result[0]) : null;
+    }
+
 
     
 
