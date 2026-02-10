@@ -49,8 +49,8 @@ class TournamentTeam extends BaseModel {
                 }
             }],
             "status" => ["required", function ($field, $value, $data) {
-                if (!in_array($value, ["participating", "eliminated", "winner"])) {
-                    return "Lo status deve essere uno tra: participando, eliminato, vincitore";
+                if (!in_array($value, ["partecipating", "eliminated", "winner"])) {
+                    return "Lo status deve essere uno tra: partecipando, eliminato, vincitore";
                 }
             }]
         ];

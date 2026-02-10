@@ -6,7 +6,6 @@ use App\Models\Tournament;
 use App\Models\TournamentTeam;
 use App\Models\Round;
 use App\Models\Game;
-use App\Utils\Response;
 
 class BracketService
 {
@@ -17,6 +16,7 @@ class BracketService
     public static function generateForTournament(int $tournamentId): array
     {
         // 1) Verifica torneo esistente
+        
         $tournament = Tournament::find($tournamentId);
         if ($tournament === null) {
             throw new \RuntimeException('Torneo non trovato');
