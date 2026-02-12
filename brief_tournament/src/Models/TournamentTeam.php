@@ -1,10 +1,25 @@
 <?php
+/**
+ * Modello TournamentTeam
+ *
+ * Serve come tabella pivot tra Tournament e Team: senza questo
+ * modello non potremmo sapere quali squadre sono iscritte a quali
+ * tornei, in che posizione partono nel tabellone e con che stato
+ * (partecipante, eliminata, vincitrice). 
+ */
 
 namespace App\Models;
 
 use App\Traits\WithValidate;
 use App\Database\DB;
 
+/**
+ * Modello TournamentTeam (tabella pivot)
+ *
+ * Rappresenta l'iscrizione di una squadra a un torneo.
+ * Contiene la posizione nel tabellone e lo stato (partecipante,
+ * eliminata, vincitrice) ed è utilizzata per costruire il bracket.
+ */
 class TournamentTeam extends BaseModel {
 
     use WithValidate;
@@ -70,6 +85,12 @@ class TournamentTeam extends BaseModel {
         return $this->belongsTo(Team::class, 'id_team');
     }
 
+    /**
+     * Trova un record TournamentTeam a partire da coppia torneo+squadra.
+     *
+     * Utile per verificare se una squadra è iscritta ad un torneo
+     * o per aggiornare/rimuovere una specifica iscrizione.
+     */
      public static function findByTournamentAndTeam(int $id_tournament, int $id_team): ?static
     {
         // Metodo di utilità per verificare se una certa squadra partecipa ad un torneo

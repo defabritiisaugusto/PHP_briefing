@@ -1,4 +1,13 @@
 <?php
+/**
+ * Route games
+ *
+ * Gestisce tutti gli endpoint REST relativi alle partite (Game):
+ * - lista delle partite globali o filtrate per round
+ * - creazione, aggiornamento ed eliminazione di una singola partita.
+ * Queste route servono per aggiornare i risultati sul tabellone e
+ * determinare i vincitori che avanzano nei round successivi.
+ */
 
 use App\Utils\Response;
 use App\Models\Game;

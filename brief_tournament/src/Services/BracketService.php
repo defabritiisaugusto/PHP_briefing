@@ -7,6 +7,15 @@ use App\Models\TournamentTeam;
 use App\Models\Round;
 use App\Models\Game;
 
+/**
+ * Servizio BracketService
+ *
+ * Contiene tutta la logica  per generare e leggere
+ * il tabellone di un torneo:
+ * - genera casualmente i quarti di finale a partire dalle squadre iscritte
+ * - crea automaticamente semifinali e finale a partire dai vincitori
+ * - espone un metodo per ottenere l'intero bracket (round + partite).
+ */
 class BracketService
 {
     /**

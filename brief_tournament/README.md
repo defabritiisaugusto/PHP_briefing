@@ -1,6 +1,11 @@
-# Simple Rest API
+# Tournament Bracket API
 
-Template minimale per creare backend REST API in PHP
+API REST in PHP per gestire tornei, squadre, round e partite con generazione automatica del tabellone.
+
+## Panoramica
+
+- Gestione CRUD di tornei, squadre, round e partite
+- Iscrizione squadre ai tornei e generazione bracket (quarti, semifinali, finale)
 
 ## Installazione
 
@@ -20,44 +25,6 @@ composer create-project codingspook/simple-rest-api nome-progetto
 
 4. **Configura le route** in `routes/index.php`
 
-## Struttura del Progetto
-
-```
-nome-progetto/
-├── config/
-│   ├── database.php     # Configurazione database
-│   └── cors.php         # Configurazione CORS
-├── routes/
-│   └── index.php        # Definizione route
-│   ├── games.php    # Bootstrap dell'applicazione
-│   ├── rounds.php
-│   ├── teams.php              
-│   │── tournaments.php
-|   |      
-│   ├── Models/
-│   │   |── BaseModel.php       # Classe BaseModel
-│   |   |──Game.php
-    |   |──Round.php
-    |   |──Team.php
-    |   |──Tournament.php
-    |   |──TournamentTeam.php
-    |
-    | ── Utils/
-├── public/
-│   └── index.php        # Entry point
-├── src/
-│   ├── bootstrap.php    # Bootstrap dell'applicazione
-│   ├── Database/
-│   ├── ├── DB.php              # Classe DB
-│   │   └── JSONDB.php          # Classe JSONDB
-│   ├── Models/
-│   │   └── BaseModel.php       # Classe BaseModel
-│   └── Utils/
-│       ├── Request.php         # Classe Request
-│       └── Response.php        # Gestione risposte JSON
-├── composer.json        # Dipendenze Composer
-└── README.md           # Questo file
-```
 
 ## Comandi Utili
 
@@ -71,6 +38,91 @@ composer dump-autoload
 # Avvia server di sviluppo (PHP built-in)
 php -S localhost:8000 -t public
 ```
+
+
+## Struttura del Progetto
+
+```
+brief_tournament/
+├── config/
+│   ├── database.php          # Configurazione database
+│   └── cors.php              # Configurazione CORS
+├── public/
+│   └── index.php             # Entry point (front controller)
+├── routes/
+│   ├── index.php             # Bootstrap delle route /api
+│   ├── tournaments.php       # Endpoint tornei
+│   ├── teams.php             # Endpoint squadre
+│   ├── rounds.php            # Endpoint round
+│   ├── games.php             # Endpoint partite
+│   └── tournamentteams.php   # Endpoint iscrizioni torneo-squadre
+├── src/
+│   ├── bootstrap.php         # Bootstrap applicazione
+│   ├── Database/
+│   │   ├── DB.php            # Driver DB principale
+│   │   └── JSONDB.php        # Driver DB JSON (se usato)
+│   ├── Models/
+│   │   ├── BaseModel.php
+│   │   ├── Game.php
+│   │   ├── Round.php
+│   │   ├── Team.php
+│   │   ├── Tournament.php
+│   │   └── TournamentTeam.php
+│   ├── Services/
+│   │   └── BracketService.php # Logica generazione tabellone
+│   ├── Traits/
+│   │   ├── HasRelations.php
+│   │   └── WithValidate.php
+│   └── Utils/
+│       ├── Request.php       # Gestione richiesta HTTP
+│       └── Response.php      # Gestione risposte JSON
+├── vendor/                   # Dipendenze Composer (SimpleRouter, ecc.)
+├── composer.json             # Dipendenze e autoload
+└── README.md                 # Documentazione
+```
+
+## Endpoint API principali
+
+Base URL: `http://localhost:8000/api`
+
+- Tornei
+    - GET /tournaments
+    - POST /tournaments
+    - PUT/PATCH /tournaments/{id}
+    - DELETE /tournaments/{id}
+    - POST /tournaments/{id}/generate-bracket
+    - GET /tournaments/{id}/bracket
+    - POST /tournaments/{id}/generate-quarts
+    - POST /tournaments/{id}/generate-semis
+    - POST /tournaments/{id}/generate-final
+    - GET /tournaments/status/{status}
+
+- Squadre
+    - GET /teams
+    - POST /teams
+    - PUT/PATCH /teams/{id}
+    - DELETE /teams/{id}
+
+- Round
+    - GET /rounds? id_tournament={id_tournament}
+    - POST /rounds
+    - PUT/PATCH /rounds/{id}
+    - DELETE /rounds/{id}
+
+- Partite
+    - GET /games? id_round={id_round}
+    - POST /games
+    - PUT/PATCH /games/{id}
+    - DELETE /games/{id}
+
+- Iscrizioni torneo-squadre
+    - GET /tournament-teams/{id_team}/tournaments
+    - GET /tournament-teams/{id_tournament}/teams
+    - POST /tournament-teams/{id_team}/tournaments/{id_tournament}
+    - PUT/PATCH /tournament-teams/{id_team}/tournaments/{id_tournament}
+    - DELETE /tournament-teams/{id_team}/tournaments/{id_tournament}
+
+
 
 ## Licenza
 

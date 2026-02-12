@@ -1,4 +1,12 @@
 <?php
+/**
+ * Route teams
+ *
+ * Definisce gli endpoint REST per la gestione delle squadre:
+ * - creazione, lettura, aggiornamento ed eliminazione delle squadre.
+ * Sono fondamentali perché rappresentano le entità di base che
+ * parteciperanno ai tornei e verranno poi usate nel tabellone.
+ */
 
 use App\Utils\Response;
 use App\Models\Team;

@@ -1,10 +1,24 @@
 <?php
+/**
+ * Modello Round
+ *
+ * Rappresenta una fase del torneo (quarti, semifinali, finale, ecc.).
+ * Serve per suddividere il torneo in step logici e per collegare
+ * ogni partita (Game) a una determinata fase, rendendo possibile
+ * costruire e leggere la struttura del tabellone.
+ */
 
 namespace App\Models;
 
 use App\Traits\WithValidate;
 use App\Database\DB;
 
+/**
+ * Modello Round
+ *
+ * Rappresenta una fase del torneo (es. Quarti, Semifinali, Finale).
+ * Ogni round appartiene a un singolo torneo e può contenere più partite (Game).
+ */
 class Round extends BaseModel {
 
     use WithValidate;
@@ -47,9 +61,19 @@ class Round extends BaseModel {
      /**
      * Relazioni
      */
+
+   
+
+        // Un torneo ha molti round (quarti, semifinali, finale, …).
+        // Ogni round appartiene a un solo torneo.
+        // Perché è fatta così:
+
+        // Il campo id_tournament è sul round, quindi è il round che “punta” al torneo → belongsTo.
+        // Dal punto di vista del torneo, leggere tutti i suoi round ($tournament->round()) è l’operazione naturale per mostrare la struttura del torneo.
+
     protected function tournament()
     {
-        return $this->hasOne(Tournament::class, 'id_tournament');
+        return $this->belongsTo(Tournament::class, 'id_tournament');
     }
 
    

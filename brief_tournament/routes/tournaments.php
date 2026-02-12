@@ -1,4 +1,14 @@
 <?php
+/**
+ * Route tournaments
+ *
+ * Espone tutti gli endpoint REST per la gestione dei tornei:
+ * - CRUD dei tornei (lista, creazione, aggiornamento, eliminazione)
+ * - generazione automatica del tabellone (quarti, semifinali, finale)
+ * - recupero dello stato e del bracket di un singolo torneo.
+ * Queste route rappresentano il cuore funzionale dell'app perché
+ * orchestrano l'intero ciclo di vita di un torneo.
+ */
 
 use App\Utils\Response;
 use App\Models\Tournament;

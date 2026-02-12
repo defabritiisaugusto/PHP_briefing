@@ -1,4 +1,13 @@
 <?php
+/**
+ * Route rounds
+ *
+ * Definisce gli endpoint REST per le fasi del torneo (Round):
+ * - lettura dei round di un torneo o globali
+ * - creazione, aggiornamento ed eliminazione di un round.
+ * Sono utili per controllare e tracciare la struttura del torneo
+ * (quarti, semifinali, finale, ecc.) e il loro stato di avanzamento.
+ */
 
 use App\Utils\Response;
 use App\Models\Round;

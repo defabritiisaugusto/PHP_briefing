@@ -1,10 +1,25 @@
 <?php
+/**
+ * Modello Game
+ *
+ * Serve a rappresentare una singola partita del torneo, con le
+ * relative squadre, il risultato e il collegamento alla partita
+ * successiva nel bracket. È necessario per poter salvare e
+ * interrogare le partite nel database e popolare il tabellone.
+ */
 
 namespace App\Models;
 
 use App\Traits\WithValidate;
 use App\Database\DB;
 
+/**
+ * Modello Game
+ *
+ * Rappresenta una singola partita all'interno di un round di un torneo.
+ * Gestisce le squadre coinvolte, il risultato, il vincitore e l'eventuale
+ * collegamento alla partita successiva nel tabellone (next_game_id).
+ */
 class Game extends BaseModel
 {
 
@@ -17,8 +32,9 @@ class Game extends BaseModel
     public ?int $goals_team2 = null;
     public ?int $winner_team_id = null;
     public ?int $next_game_id = null;
+
     /**
-     * Nome della tabella
+     * Nome della tabella nel database
      */
     protected static ?string $table = "games";
 
@@ -89,16 +105,16 @@ class Game extends BaseModel
         return $this->belongsTo(Team::class, 'id_team2');
     }
 
+    protected function round()
+    {
+        return $this->belongsTo(Round::class, 'id_round');
+    }
+
     protected function winnerTeam()
     {
         return $this->belongsTo(Team::class, 'winner_team_id');
     }
-   
-    public function round()
-{
-    return $this->belongsTo(Round::class, 'id_round');
-}
-
+ 
 
     // indica che molte istanze di un'entità A sono associate a una singola istanza di un'entità B, mentre ogni istanza di B può essere legata a una o più di A
 

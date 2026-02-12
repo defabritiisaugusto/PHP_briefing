@@ -1,10 +1,24 @@
 <?php
+/**
+ * Modello Team
+ *
+ * Serve a rappresentare le squadre partecipanti ai tornei,
+ * con le loro informazioni principali (nome, logo). È la base
+ * su cui vengono costruite le iscrizioni ai tornei e le partite.
+ */
 
 namespace App\Models;
 
 use App\Traits\WithValidate;
 use App\Database\DB;
 
+/**
+ * Modello Team
+ *
+ * Rappresenta una squadra che partecipa ai tornei.
+ * Contiene il nome e un'eventuale immagine/logo, e gestisce
+ * le relazioni con i tornei tramite la tabella pivot TournamentTeam.
+ */
 class Team extends BaseModel {
 
     use WithValidate;
@@ -14,7 +28,7 @@ class Team extends BaseModel {
     public ?string $img = null;
 
     /**
-     * Nome della collection
+     * Nome della tabella nel database
      */
     protected static ?string $table = "teams";
 
@@ -40,6 +54,6 @@ class Team extends BaseModel {
      */
     protected function tournaments()
     {
-        return $this->hasMany(TournamentTeam::class, 'id_team');
+        return $this->belongsToMany(Tournament::class, 'tournament_teams', 'id_team', 'id_tournament');
     }
 }

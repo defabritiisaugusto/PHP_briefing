@@ -1,4 +1,14 @@
 <?php
+/**
+ * Route tournament-teams
+ *
+ * Gestisce le relazioni tra tornei e squadre (tabella pivot TournamentTeam):
+ * - elenca tutti i tornei a cui è iscritta una squadra
+ * - elenca tutte le squadre iscritte a un torneo
+ * - iscrive, aggiorna o rimuove una squadra da un torneo.
+ * Sono fondamentali perché collegano il dominio "squadre" al dominio
+ * "tornei" e permettono di costruire correttamente il tabellone.
+ */
 
 use App\Utils\Response;
 use App\Models\TournamentTeam;

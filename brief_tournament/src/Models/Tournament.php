@@ -1,16 +1,32 @@
 <?php
+/**
+ * Modello Tournament
+ *
+ * È l'entità principale dell'applicazione: descrive un intero torneo,
+ * con i suoi metadati (nome, data, luogo, stato) e collega round,
+ * partite e squadre. Senza questo modello non sarebbe possibile
+ * raggruppare tutte le informazioni del bracket sotto un unico contesto.
+ */
 
 namespace App\Models;
 
 use App\Traits\WithValidate;
 use App\Database\DB;
 
+/**
+ * Modello Tournament
+ *
+ * Rappresenta un torneo composto da più round e partite.
+ * Gestisce informazioni anagrafiche (nome, data, luogo), lo stato
+ * di avanzamento e la squadra vincitrice, oltre alle relazioni con
+ * squadre e round.
+ */
 class Tournament extends BaseModel
 {
 
     use WithValidate;
 
-    // Campi principali della tabella "tournaments"
+    
     public ?string $name = null;           // Nome del torneo
     public ?string $date = null;           // Data (es. 2025-05-01)
     public ?string $place = null;          // Luogo dove si svolge il torneo
@@ -54,13 +70,22 @@ class Tournament extends BaseModel
 
     /**
      * Relazioni
-     * winnerTeam: squadra vincitrice del torneo (belongsTo Team)
-     * teams: tutte le squadre partecipanti tramite tabella pivot tournament_teams
+     * 
+     * 
      */
-    protected function winnerTeam()
+
+        // Un torneo ha molti round (quarti, semifinali, finale, …).
+        // Ogni round appartiene a un solo torneo.
+        // Perché è fatta così:
+
+        // Il campo id_tournament è sul round, quindi è il round che “punta” al torneo → belongsTo.
+        // Dal punto di vista del torneo, leggere tutti i suoi round ($tournament->round()) è l’operazione naturale per mostrare la struttura del torneo.
+
+    protected function round()
     {
-        return $this->belongsTo(Team::class, 'winner_team_id');
+        return $this->hasMany(Round::class, 'id_tournament');
     }
+
 
     protected function teams()
     {
